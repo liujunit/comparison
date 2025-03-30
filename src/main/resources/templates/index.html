@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>一致性检查</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/main.css}" rel="stylesheet">
+</head>
+<body>
+<div class="tab-container">
+    <div class="tab-buttons">
+        <button class="tab-button active" onclick="openTab(event, 'content1')">数据库一致性检查</button>
+        <button class="tab-button" onclick="openTab(event, 'content2')">代码一致性检查</button>
+    </div>
+
+    <div id="content1" class="tab-content active">
+        <div class="container mt-3">
+            <form id="dataSourceForm" th:action="@{/dataSubmit}" th:object="${formDataSource}" method="post">
+                <div class="row mb-3">  <!-- Bootstrap 行 -->
+                    <div class="col-md-5">  <!-- 第一个输入框，占6列 -->
+                        <input type="text" class="form-control" id="url1"
+                               th:field="*{url1}" placeholder="数据库1_JDBC" required oninvalid="this.setCustomValidity('请填写数据库1连接信息')"
+                               oninput="this.setCustomValidity('')">
+                    </div>
+
+                    <div class="col-md-5">  <!-- 第二个输入框，占6列 -->
+                        <input type="text" class="form-control" id="url2"
+                               th:field="*{url2}" placeholder="数据库2_JDBC" required oninvalid="this.setCustomValidity('请填写数据库2连接信息')"
+                               oninput="this.setCustomValidity('')">
+                    </div>
+
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary">检查</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- 结果显示区域 -->
+        <div id="resultDataSection" class="mt-4">
+            <!-- 结果将在这里动态显示 -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">数据库对比结果</h5>
+                </div>
+                <div class="card-body">
+                    <div class="position-relative" style="height: calc(85vh - 250px);">
+                        <div class="table-responsive h-100 position-absolute w-100" style="overflow-y: auto;">
+                            <table class="table table-bordered table-hover mb-0">
+                                <thead class="thead-light sticky-top" style="background: #f8f9fa;">
+                                <tr>
+                                    <th style="width: 35%; position: sticky; top: 0;">数据库1 (源库)</th>
+                                    <th style="width: 35%; position: sticky; top: 0;">数据库2 (目标库)</th>
+                                    <th style="width: 30%; position: sticky; top: 0;">一致性结果</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="row, iterStat : ${diffData}"
+                                    th:class="${row.diff == '一致'} ? 'table-success' : 'table-danger'">
+                                    <td th:text="${row.th1}" style="vertical-align: middle;"></td>
+                                    <td th:text="${row.th2}" style="vertical-align: middle;"></td>
+                                    <td style="vertical-align: middle;">
+                                        <span th:text="${row.diff}"></span>
+                                        <span th:if="${row.diff != '一致'}"
+                                              class="badge bg-warning text-dark ms-2">差异</span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- 添加统计信息 -->
+                    <div class="d-flex justify-content-end mt-3" th:if="${num1 != null}">
+                        <div class="alert alert-info mb-0 p-2 d-flex align-items-center">
+                            <i class="bi bi-table me-2"></i>
+                            <div class="d-flex align-items-center">
+                                <!-- 统计信息框 -->
+                                <div class="border-end pe-3 me-3">
+                                    <div class="fw-bold text-center">统计：</div>
+                                </div>
+
+                                <!-- 数据库1信息框 -->
+                                <div class="border-end pe-3 me-3">
+                                    <div class="fw-bold text-center">数据库1</div>
+                                    <div class="text-center">
+                                        <span class="fw-bold text-primary" th:text="${num1}"></span><span>张</span>
+                                    </div>
+                                </div>
+
+                                <!-- 数据库2信息框 -->
+                                <div>
+                                    <div class="fw-bold text-center">数据库2</div>
+                                    <div class="text-center">
+                                        <span class="fw-bold text-primary" th:text="${num2}"></span><span>张</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="content2" class="tab-content">
+        <div class="container mt-3">
+            <form id="fileSourceForm" th:action="@{/fileSubmit}" th:object="${formDataSource}" method="post">
+                <div class="row mb-3">  <!-- Bootstrap 行 -->
+                    <div class="col-md-5">  <!-- 第一个输入框，占6列 -->
+                        <input type="text" class="form-control" id="url1"
+                               th:field="*{url1}" placeholder="代码服务器1地址" required oninvalid="this.setCustomValidity('请填写代码服务器1连接信息')"
+                               oninput="this.setCustomValidity('')">
+                    </div>
+
+                    <div class="col-md-5">  <!-- 第二个输入框，占6列 -->
+                        <input type="text" class="form-control" id="url2"
+                               th:field="*{url2}" placeholder="代码服务器2地址" oninvalid="this.setCustomValidity('请填写代码服务器2连接信息')"
+                               oninput="this.setCustomValidity('')">
+                    </div>
+
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary">检查</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- 结果显示区域 -->
+        <div id="resultFileSection" class="mt-4">
+            <!-- 结果将在这里动态显示 -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">代码对比结果</h5>
+                </div>
+                <div class="card-body">
+                    <div class="position-relative" style="height: calc(85vh - 250px);">
+                        <div class="table-responsive h-100 position-absolute w-100" style="overflow-y: auto;">
+                            <table class="table table-bordered table-hover mb-0">
+                                <thead class="thead-light sticky-top" style="background: #f8f9fa;">
+                                <tr>
+                                    <th style="width: 35%; position: sticky; top: 0;">代码服务器1 (源服务器)</th>
+                                    <th style="width: 35%; position: sticky; top: 0;">代码服务器2 (目标服务器)</th>
+                                    <th style="width: 30%; position: sticky; top: 0;">一致性结果</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="row, iterStat : ${diffData}"
+                                    th:class="${row.diff == '一致'} ? 'table-success' : 'table-danger'">
+                                    <td th:text="${row.th1}" style="vertical-align: middle;"></td>
+                                    <td th:text="${row.th2}" style="vertical-align: middle;"></td>
+                                    <td style="vertical-align: middle;">
+                                        <span th:text="${row.diff}"></span>
+                                        <span th:if="${row.diff != '一致'}"
+                                              class="badge bg-warning text-dark ms-2">差异</span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- 添加统计信息 -->
+                    <div class="d-flex justify-content-end mt-3" th:if="${num1 != null}">
+                        <div class="alert alert-info mb-0 p-2 d-flex align-items-center">
+                            <i class="bi bi-table me-2"></i>
+                            <div class="d-flex align-items-center">
+                                <!-- 统计信息框 -->
+                                <div class="border-end pe-3 me-3">
+                                    <div class="fw-bold text-center">统计：</div>
+                                </div>
+
+                                <!-- 服务器1信息框 -->
+                                <div class="border-end pe-3 me-3">
+                                    <div class="fw-bold text-center">服务器1文件数</div>
+                                    <div class="text-center">
+                                        <span class="fw-bold text-primary" th:text="${num1}"></span><span>个</span>
+                                    </div>
+                                </div>
+
+                                <!-- 服务器2信息框 -->
+                                <div>
+                                    <div class="fw-bold text-center">服务器2文件数</div>
+                                    <div class="text-center">
+                                        <span class="fw-bold text-primary" th:text="${num2}"></span><span>个</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script th:src="@{/js/jquery-3.6.0.min.js}"></script>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
