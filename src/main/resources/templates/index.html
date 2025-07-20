@@ -16,25 +16,71 @@
     <div id="content1" class="tab-content active">
         <div class="container mt-3">
             <form id="dataSourceForm" th:action="@{/dataSubmit}" th:object="${formDataSource}" method="post">
-                <div class="row mb-3">  <!-- Bootstrap 行 -->
-                    <div class="col-md-5">  <!-- 第一个输入框，占6列 -->
+                <div class="row mb-3 align-items-center">  <!-- 添加 align-items-center 使内容垂直居中 -->
+                    <div class="col-md-5">  <!-- 第一个输入框 -->
                         <input type="text" class="form-control" id="url1"
-                               th:field="*{url1}" placeholder="数据库1_JDBC" required oninvalid="this.setCustomValidity('请填写数据库1连接信息')"
+                               th:field="*{url1}" placeholder="数据库1_JDBC" required
+                               oninvalid="this.setCustomValidity('请填写数据库1连接信息')"
                                oninput="this.setCustomValidity('')">
                     </div>
 
-                    <div class="col-md-5">  <!-- 第二个输入框，占6列 -->
+                    <div class="col-md-5">  <!-- 第二个输入框 -->
                         <input type="text" class="form-control" id="url2"
-                               th:field="*{url2}" placeholder="数据库2_JDBC" required oninvalid="this.setCustomValidity('请填写数据库2连接信息')"
+                               th:field="*{url2}" placeholder="数据库2_JDBC" required
+                               oninvalid="this.setCustomValidity('请填写数据库2连接信息')"
                                oninput="this.setCustomValidity('')">
                     </div>
 
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary">检查</button>
+                    <div class="col-md-2 d-flex gap-2">  <!-- 修改为水平排列 -->
+                        <button type="submit" class="btn btn-primary flex-grow-1">检查</button>
+                        <button type="button" id="repairBtn" class="btn btn-success flex-grow-1" style="display: none;">一键修复</button>
                     </div>
                 </div>
             </form>
         </div>
+
+
+
+        <!-- 进度条容器 -->
+        <div id="progressContainer" class="mt-4">
+            <h5>正在修复中，请稍候...</h5>
+            <div class="progress">
+                <div id="repairProgress" class="progress-bar progress-bar-striped progress-bar-animated"
+                     role="progressbar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- 修复结果表格 -->
+        <div id="repairResults" class="mt-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">修复结果</h5>
+                </div>
+                <div class="card-body">
+                    <div class="position-relative" style="height: calc(85vh - 250px);">
+                        <div class="table-responsive h-100 position-absolute w-100" style="overflow-y: auto;">
+                            <table class="table table-bordered table-hover mb-0">
+                                <thead class="thead-light sticky-top" style="background: #f8f9fa;">
+                                <tr>
+                                    <th style="width: 20%; position: sticky; top: 0;">表名</th>
+                                    <th style="width: 20%; position: sticky; top: 0;">修复操作</th>
+                                    <th style="width: 20%; position: sticky; top: 0;">状态</th>
+                                    <th style="width: 20%; position: sticky; top: 0;">影响行数</th>
+                                    <th style="width: 20%; position: sticky; top: 0;">耗时</th>
+                                </tr>
+                                </thead>
+                                <tbody id="repairResultsBody">
+                                <!-- 修复结果将通过JavaScript动态填充 -->
+                                </tbody>
+                            </table>
+                        </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+
+
+
 
         <!-- 结果显示区域 -->
         <div id="resultDataSection" class="mt-4">
